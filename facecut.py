@@ -2,10 +2,17 @@ import dlib
 from PIL import Image
 import os
 
-# Ruta del modelo preentrenado de Dlib (se descarga automáticamente con dlib)
+# Ruta del modelo preentrenado de Dlib
 detector = dlib.get_frontal_face_detector()
 
-def recortar_cabezas(input_folder, output_folder):
+def recortar_cabezas(input_folder, output_folder, margen_ancho=0.2, margen_alto=0.3):
+    """
+    Recorta cabezas con un margen configurable.
+    :param input_folder: Carpeta de entrada con imágenes.
+    :param output_folder: Carpeta donde se guardarán las caras recortadas.
+    :param margen_ancho: Margen adicional en proporción al ancho detectado (ejemplo: 0.2 = 20%).
+    :param margen_alto: Margen adicional en proporción a la altura detectada (ejemplo: 0.3 = 30%).
+    """
     # Crear la carpeta de salida si no existe
     if not os.path.exists(output_folder):
         os.makedirs(output_folder)
@@ -25,10 +32,24 @@ def recortar_cabezas(input_folder, output_folder):
 
             # Recortar cada cara detectada
             for i, face in enumerate(faces):
-                # Coordenadas del rectángulo de la cara
+                # Coordenadas del rectángulo de la cara detectada
                 x, y, x2, y2 = face.left(), face.top(), face.right(), face.bottom()
 
-                # Recortar la cara
+                # Calcular el ancho y alto del rostro detectado
+                ancho = x2 - x
+                alto = y2 - y
+
+                # Aplicar márgenes
+                x -= int(ancho * margen_ancho)
+                x2 += int(ancho * margen_ancho)
+                y -= int(alto * margen_alto)
+                y2 += int(alto * margen_alto)
+
+                # Asegurarse de que las coordenadas estén dentro de los límites de la imagen
+                x, y = max(0, x), max(0, y)
+                x2, y2 = min(img.width, x2), min(img.height, y2)
+
+                # Recortar la cara con márgenes
                 cropped_face = img.crop((x, y, x2, y2))
 
                 # Guardar la cara recortada
@@ -37,9 +58,11 @@ def recortar_cabezas(input_folder, output_folder):
 
             print(f"Procesada: {filename}, Caras detectadas: {len(faces)}")
 
-# Configurar rutas
+# Configurar rutas y márgenes
 carpeta_entrada = "input"
 carpeta_salida = "output"
+margen_ancho = 0.2  # 20% del ancho detectado
+margen_alto = 0.5   # 30% del alto detectado
 
 # Ejecutar
-recortar_cabezas(carpeta_entrada, carpeta_salida)
+recortar_cabezas(carpeta_entrada, carpeta_salida, margen_ancho, margen_alto)
