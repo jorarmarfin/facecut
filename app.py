@@ -3,6 +3,7 @@ from PyQt5.QtWidgets import QApplication, QMainWindow, QVBoxLayout, QHBoxLayout,
 from PyQt5.QtCore import Qt
 from screens.home_screen import HomeScreen
 from screens.crop_screen import CropScreen
+from screens.config_screen import ConfigScreen
 
 class MainWindow(QMainWindow):
     def __init__(self):
@@ -43,17 +44,25 @@ class MainWindow(QMainWindow):
         )
         button2.clicked.connect(self.show_crop)
 
-        button3 = QPushButton("Salir")
+        button3 = QPushButton("Configuración")
         button3.setStyleSheet(
+            "QPushButton { background-color: #6272a4; color: #f8f8f2; border: none; padding: 10px; }"
+            "QPushButton:hover { background-color: #506294; }"
+        )
+        button3.clicked.connect(self.show_config)
+
+        button10 = QPushButton("Salir")
+        button10.setStyleSheet(
             "QPushButton { background-color: #ff5555; color: #f8f8f2; border: none; padding: 10px; }"
             "QPushButton:hover { background-color: #ff4444; }"
         )
-        button3.clicked.connect(self.close)
+        button10.clicked.connect(self.close)
 
         # Agregar botones al layout del menú
         menu_layout.addWidget(button1)
         menu_layout.addWidget(button2)
         menu_layout.addWidget(button3)
+        menu_layout.addWidget(button10)
         side_menu.setLayout(menu_layout)
 
         # Stacked widget para cambiar entre pantallas
@@ -65,6 +74,9 @@ class MainWindow(QMainWindow):
 
         self.crop_screen = CropScreen()
         self.stack.addWidget(self.crop_screen)
+
+        self.config_screen = ConfigScreen()
+        self.stack.addWidget(self.config_screen)
 
         # Agregar layouts al layout principal
         main_layout.addWidget(side_menu)
@@ -78,6 +90,9 @@ class MainWindow(QMainWindow):
 
     def show_crop(self):
         self.stack.setCurrentWidget(self.crop_screen)
+
+    def show_config(self):
+        self.stack.setCurrentWidget(self.config_screen)
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
