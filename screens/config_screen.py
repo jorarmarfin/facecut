@@ -2,13 +2,17 @@ import json
 import os
 from PyQt5.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QLabel, QLineEdit, QPushButton, QMessageBox
 from PyQt5.QtCore import Qt
+from utils import validate_license,load_configuration,get_config_path
 
 class ConfigScreen(QWidget):
-    def __init__(self):
+    def __init__(self, licencia_validada_callback):
+        self.licencia_validada_callback = licencia_validada_callback
         super().__init__()
 
         # Ruta del archivo de configuración
-        self.config_file_path = os.path.join("screens", "config.json")
+        # self.config_file_path = os.path.join("screens", "config.json")
+        conf = load_configuration()
+        self.config_file_path = get_config_path()
 
         layout = QVBoxLayout()
         layout.setAlignment(Qt.AlignTop)
@@ -110,6 +114,13 @@ class ConfigScreen(QWidget):
                 "margen_alto": float(alto),
                 "licencia": licencia
             }
+
+            resultado = validate_license(licencia)
+            if resultado.get("valida", False):
+                self.licencia_validada_callback()  # Notificar que la licencia es válida
+            else:
+                error = resultado.get("error", "Licencia no válida.")
+                QMessageBox.critical(self, "Error", f"No se pudo validar la licencia:\n{error}")
 
             # Guardar en config.json
             with open(self.config_file_path, "w") as file:

@@ -1,9 +1,10 @@
 import sys
-from PyQt5.QtWidgets import QApplication, QMainWindow, QVBoxLayout, QHBoxLayout, QWidget, QFrame, QStackedWidget, QPushButton
+from PyQt5.QtWidgets import QApplication, QMainWindow, QVBoxLayout, QHBoxLayout, QWidget, QFrame, QStackedWidget, QPushButton, QMessageBox
 from PyQt5.QtCore import Qt
 from screens.home_screen import HomeScreen
 from screens.crop_screen import CropScreen
 from screens.config_screen import ConfigScreen
+from utils import validate_license, load_configuration
 
 class MainWindow(QMainWindow):
     def __init__(self):
@@ -75,7 +76,7 @@ class MainWindow(QMainWindow):
         self.crop_screen = CropScreen()
         self.stack.addWidget(self.crop_screen)
 
-        self.config_screen = ConfigScreen()
+        self.config_screen = ConfigScreen(self.licence_validated)
         self.stack.addWidget(self.config_screen)
 
         # Agregar layouts al layout principal
@@ -85,13 +86,48 @@ class MainWindow(QMainWindow):
         # Configurar el layout del widget central
         central_widget.setLayout(main_layout)
 
+        # Validar licencia al inicio
+        self.licencia_valida = self.licence_validate_start()
+
+    def licence_validate_start(self):
+        """
+        Carga y valida la licencia al inicio del sistema.
+        """
+        conf = load_configuration()
+        licencia = conf.get("licencia")
+        if licencia:
+            result = validate_license(licencia)
+            return result.get("valida", False)
+        return False
+
+    def licence_validated(self):
+        """
+        Marca la licencia como válida tras la validación en ConfigScreen.
+        """
+        self.licencia_valida = True
+        QMessageBox.information(self, "Éxito", "Licencia validada correctamente. Ahora puede usar la funcionalidad de recorte.")
+        self.show_home()
+
     def show_home(self):
+        """
+        Muestra la pantalla de inicio.
+        """
         self.stack.setCurrentWidget(self.home_screen)
 
     def show_crop(self):
-        self.stack.setCurrentWidget(self.crop_screen)
+        """
+        Muestra la pantalla de recorte si la licencia es válida.
+        """
+        if self.licencia_valida:
+            self.stack.setCurrentWidget(self.crop_screen)
+        else:
+            QMessageBox.warning(self, "Acceso Denegado", "Debe validar una licencia válida en Configuración antes de usar esta funcionalidad.")
+            self.show_config()
 
     def show_config(self):
+        """
+        Muestra la pantalla de configuración.
+        """
         self.stack.setCurrentWidget(self.config_screen)
 
 if __name__ == "__main__":

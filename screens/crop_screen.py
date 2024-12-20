@@ -3,6 +3,7 @@ from PIL import Image
 import os
 from PyQt5.QtWidgets import QWidget, QVBoxLayout, QLabel, QLineEdit, QPushButton, QFileDialog
 from PyQt5.QtCore import Qt
+from utils import load_configuration
 
 # Ruta del modelo preentrenado de Dlib
 detector = dlib.get_frontal_face_detector()
@@ -93,10 +94,11 @@ class CropScreen(QWidget):
         if not input_folder or not output_folder:
             self.status_label.setText("Estado: Seleccione ambas carpetas.")
             return
+        config = load_configuration()
+        print(config)
+        self.recortar_cabezas(input_folder, output_folder, config["margen_ancho"], config["margen_alto"])
 
-        self.recortar_cabezas(input_folder, output_folder)
-
-    def recortar_cabezas(self, input_folder, output_folder, margen_ancho=0.2, margen_alto=0.3):
+    def recortar_cabezas(self, input_folder, output_folder, margen_ancho, margen_alto):
         """
         Recorta cabezas con un margen configurable.
         :param input_folder: Carpeta de entrada con imágenes.

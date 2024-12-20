@@ -49,3 +49,13 @@ Este proyecto está bajo la Licencia MIT. Consulta el archivo `LICENSE` para má
 
 ## Autor
 Luis
+
+## Compilar el proyecto
+Si deseas compilar el proyecto en un ejecutable, puedes utilizar `PyInstaller`. Ejecuta el siguiente comando en la terminal para compilar el proyecto en un archivo ejecutable:
+```bash
+pyinstaller --onefile --noconsole --icon=icon.ico --add-data "config.json:." --add-data "assets/*:assets/" app.py
+docker run --rm -v "$(pwd):/src/" cdrx/pyinstaller-windows "pyinstaller --onefile --noconsole --icon=icon.ico --add-data config.json:. --add-data assets/*:assets/ app.py"
+```
+
+pip freeze > requirements.txt
+```
